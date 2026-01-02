@@ -826,6 +826,8 @@ def dashboard_modu():
                 # ... (Mevcut enf_gida satırı)
                 enf_gida = ((gida[son] / gida[baz] * gida[agirlik_col]).sum() / gida[agirlik_col].sum() - 1) * 100 if not gida.empty else 0
 
+                
+         
                 # --- 1. ARALIK AYI SABİTLEME ---
                 aralik_gunleri = [g for g in gunler if "-12-" in g]
                 if aralik_gunleri:
@@ -837,26 +839,17 @@ def dashboard_modu():
                 else:
                     enf_aralik = 0.0
 
-                # --- OCAK BAZLI HESAPLAMA (DÜZELTME) ---
+                # --- 2. OCAK BAZLI HESAPLAMA ---
                 ocak_gunleri = [g for g in gunler if "-01-" in g]
-                aralik_gunleri = [g for g in gunler if "-12-" in g]
-
-                if ocak_gunleri and aralik_gunleri:
-                    # Ocak'ın kendi içindeki ilk günü yerine, Aralık'ın son gününü 'baz' alıyoruz
-                    ocak_baz_tarihi = aralik_gunleri[-1] 
-                    
-                    pay_ocak = (df_analiz.dropna(subset=[son, ocak_baz_tarihi])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz_tarihi])).sum()
-                    payda_ocak = df_analiz.dropna(subset=[son, ocak_baz_tarihi])[agirlik_col].sum()
-                    
-                    if payda_ocak != 0:
-                        endeks_ocak = (pay_ocak / payda_ocak) * 100
-                        enf_ocak = endeks_ocak - 100
-                    else:
-                        enf_ocak = 0.0
+                if ocak_gunleri:
+                    ocak_baz = ocak_gunleri[0]
+                    pay_ocak = (df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz])).sum()
+                    payda_ocak = df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col].sum()
+                    endeks_ocak = (pay_ocak / payda_ocak) * 100
+                    enf_ocak = endeks_ocak - 100
                 else:
                     enf_ocak = 0.0
-         
-                
+                    
                 # ... (Mevcut dt_son satırı ile devam et)
                 dt_son = datetime.strptime(son, '%Y-%m-%d')
             
@@ -922,7 +915,7 @@ def dashboard_modu():
                 with c2: kpi_card("Gıda Enflasyonu", f"%{enf_gida:.2f}", "Mutfak Sepeti", "#ef4444", "card-emerald")
                 with c3: kpi_card("Simülasyon Beklentisi", f"%{enf_genel:.2f}", f"Aralık Ayı Tamamlandı", "#8b5cf6", "card-purple")
                 with c4: kpi_card("Resmi TÜİK Verisi", f"%{resmi_aylik_enf:.2f}", f"{resmi_tarih_str} Dönemi", "#f59e0b", "card-orange")
-                with c5:kpi_card( "Ocak Bazlı Enflasyon", f"%{enf_ocak:.2f}", "Ocak = 100", "#22c55e", "card-emerald" )
+                with c5: kpi_card("Ocak Bazlı Enflasyon", f"%{enf_ocak:.2f}", "Yılbaşından Bugüne", "#22c55e", "card-emerald")
                 st.markdown("<br>", unsafe_allow_html=True)
 
                 # --- GRAFİK STİL FONKSİYONU ---
@@ -1120,6 +1113,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
