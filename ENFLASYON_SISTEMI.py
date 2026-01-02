@@ -820,6 +820,17 @@ def dashboard_modu():
                 df_analiz['Fark'] = (df_analiz[son] / df_analiz[baz]) - 1
                 gida = df_analiz[df_analiz['Kod'].str.startswith("01")].copy()
                 enf_gida = ((gida[son] / gida[baz] * gida[agirlik_col]).sum() / gida[agirlik_col].sum() - 1) * 100 if not gida.empty else 0
+
+                ocak_gunleri = [g for g in gunler if "-01-" in g]
+              if ocak_gunleri:
+               ocak_baz = ocak_gunleri[0]
+              # Ocak ayı başından (100 puan) itibaren kümülatif artış
+              pay = (df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz])).sum()
+          payda = df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col].sum()
+             endeks_ocak = (pay / payda) * 100
+             enf_ocak = endeks_ocak - 100
+         else:
+             enf_ocak = 0.0
                 
                 dt_son = datetime.strptime(son, '%Y-%m-%d'); dt_baz = datetime.strptime(baz, '%Y-%m-%d')
                
@@ -1068,6 +1079,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
