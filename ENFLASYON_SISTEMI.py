@@ -815,7 +815,7 @@ def dashboard_modu():
                 if len(gunler) < 1: st.warning("Yeterli tarih verisi yok."); return
                 baz, son = gunler[0], gunler[-1]
                 
-                endeks_genel = (df_analiz.dropna(subset=[son, baz])[agirlik_col] * (df_analiz[son] / df_analiz[baz])).sum() / df_analiz.dropna(subset=[son, baz])[agirlik_col].sum() * 100
+               endeks_genel = (df_analiz.dropna(subset=[son, baz])[agirlik_col] * (df_analiz[son] / df_analiz[baz])).sum() / df_analiz.dropna(subset=[son, baz])[agirlik_col].sum() * 100
                 enf_genel = (endeks_genel / 100 - 1) * 100
                 df_analiz['Fark'] = (df_analiz[son] / df_analiz[baz]) - 1
                 gida = df_analiz[df_analiz['Kod'].str.startswith("01")].copy()
@@ -830,7 +830,7 @@ def dashboard_modu():
                     payda = df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col].sum()
                     endeks_ocak = (pay / payda) * 100
                     enf_ocak = endeks_ocak - 100
-               else:
+                else:
                     enf_ocak = 0.0
                 # --- EKLEME BİTTİ ---
                 
@@ -1081,6 +1081,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
