@@ -863,7 +863,7 @@ def dashboard_modu():
                         </div>
                     """, unsafe_allow_html=True)
                 
-                c1, c2, c3, c4 = st.columns(4)
+                c1, c2, c3, c4, c5 = st.columns(5)
                 with c1: kpi_card("Aralık Ayı Enflasyonu", f"%{enf_genel:.2f}", f"İlgili Dönem", "#ef4444", "card-blue")
                 with c2: kpi_card("Gıda Enflasyonu", f"%{enf_gida:.2f}", "Mutfak Sepeti", "#ef4444", "card-emerald")
                 with c3: kpi_card("Simülasyon Beklentisi", f"%{enf_genel:.2f}", f"Aralık Ayı Tamamlandı", "#8b5cf6", "card-purple")
@@ -1066,6 +1066,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
