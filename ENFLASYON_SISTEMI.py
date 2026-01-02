@@ -822,6 +822,25 @@ def dashboard_modu():
                 enf_gida = ((gida[son] / gida[baz] * gida[agirlik_col]).sum() / gida[agirlik_col].sum() - 1) * 100 if not gida.empty else 0
                 
                 dt_son = datetime.strptime(son, '%Y-%m-%d'); dt_baz = datetime.strptime(baz, '%Y-%m-%d')
+                # --- ARALIK AYI (AYLIK) ENFLASYON ---
+if len(gunler) >= 2:
+    onceki = gunler[-2]
+    aralik = gunler[-1]
+
+    endeks_onceki = (
+        df_analiz.dropna(subset=[onceki, baz])[agirlik_col]
+        * (df_analiz[onceki] / df_analiz[baz])
+    ).sum() / df_analiz.dropna(subset=[onceki, baz])[agirlik_col].sum() * 100
+
+    endeks_son = (
+        df_analiz.dropna(subset=[aralik, baz])[agirlik_col]
+        * (df_analiz[aralik] / df_analiz[baz])
+    ).sum() / df_analiz.dropna(subset=[aralik, baz])[agirlik_col].sum() * 100
+
+    enf_aralik = (endeks_son / endeks_onceki - 1) * 100
+else:
+    enf_aralik = 0
+
                 days_left = calendar.monthrange(dt_son.year, dt_son.month)[1] - dt_son.day
                 month_end_forecast = enf_genel + ((enf_genel / max(dt_son.day, 1)) * days_left)
                 gun_farki = (dt_son - dt_baz).days
@@ -862,13 +881,28 @@ def dashboard_modu():
                             <div class="metric-sub" style="color:{sub_color}">{sub}</div>
                         </div>
                     """, unsafe_allow_html=True)
-                
+
+
+                # --- OCAK BAZLI ENFLASYON (Ocak = 100) ---
+df_trend_sorted = df_trend.sort_values("Tarih")
+
+ocak_baslangic = df_trend_sorted[
+    df_trend_sorted["Tarih"].dt.month == 1
+].head(1)
+
+if not ocak_baslangic.empty:
+    ocak_endeks = ocak_baslangic["TÜFE"].iloc[0]
+    guncel_endeks = df_trend_sorted["TÜFE"].iloc[-1]
+    enf_ocak = (guncel_endeks / ocak_endeks - 1) * 100
+else:
+    enf_ocak = 0
+
                 c1, c2, c3, c4, c5 = st.columns(5)
                 with c1: kpi_card("Aralık Ayı Enflasyonu", f"%{enf_genel:.2f}", f"İlgili Dönem", "#ef4444", "card-blue")
                 with c2: kpi_card("Gıda Enflasyonu", f"%{enf_gida:.2f}", "Mutfak Sepeti", "#ef4444", "card-emerald")
                 with c3: kpi_card("Simülasyon Beklentisi", f"%{enf_genel:.2f}", f"Aralık Ayı Tamamlandı", "#8b5cf6", "card-purple")
                 with c4: kpi_card("Resmi TÜİK Verisi", f"%{resmi_aylik_enf:.2f}", f"{resmi_tarih_str} Dönemi", "#f59e0b", "card-orange")
-                with c5: kpi_card("Ocak Enflasyonu", f"%{ocak_enflasyon:.2f}", "Ocak 2025", "#10b981", "card-emerald")
+                with c5:kpi_card( "Ocak Bazlı Enflasyon", f"%{enf_ocak:.2f}", "Ocak = 100", "#22c55e", "card-emerald" )
                 st.markdown("<br>", unsafe_allow_html=True)
 
                 # --- GRAFİK STİL FONKSİYONU ---
@@ -1066,6 +1100,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
