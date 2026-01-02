@@ -859,7 +859,25 @@ def dashboard_modu():
                     enf_ocak = 0.0
             
             
-                
+                # --- GIDA ENFLASYONU (YILBAŞINDAN BUGÜNE) ---
+                if aralik_gunleri:
+                    gida_yilbasi_baz = aralik_gunleri[-1] # 31 Aralık
+                    # Sadece gıda ürünlerini filtrele
+                    df_gida = df_analiz[df_analiz['Kod'].str.startswith("01")].copy()
+                    
+                    if not df_gida.empty:
+                        # Gıda için 31 Aralık ve Son gün verilerini kontrol et
+                        pay_gida = (df_gida.dropna(subset=[son, gida_yilbasi_baz])[agirlik_col] * (df_gida[son] / df_gida[gida_yilbasi_baz])).sum()
+                        payda_gida = df_gida.dropna(subset=[son, gida_yilbasi_baz])[agirlik_col].sum()
+                        
+                        if payda_gida != 0:
+                            enf_gida = (pay_gida / payda_gida - 1) * 100
+                        else:
+                            enf_gida = 0.0
+                    else:
+                        enf_gida = 0.0
+                else:
+                    enf_gida = 0.0
                 dt_son = datetime.strptime(son, '%Y-%m-%d'); dt_baz = datetime.strptime(baz, '%Y-%m-%d')
                
 
@@ -1108,6 +1126,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
