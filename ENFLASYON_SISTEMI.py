@@ -868,6 +868,7 @@ def dashboard_modu():
                 with c2: kpi_card("Gıda Enflasyonu", f"%{enf_gida:.2f}", "Mutfak Sepeti", "#ef4444", "card-emerald")
                 with c3: kpi_card("Simülasyon Beklentisi", f"%{enf_genel:.2f}", f"Aralık Ayı Tamamlandı", "#8b5cf6", "card-purple")
                 with c4: kpi_card("Resmi TÜİK Verisi", f"%{resmi_aylik_enf:.2f}", f"{resmi_tarih_str} Dönemi", "#f59e0b", "card-orange")
+                with c5: kpi_card("Ocak Enflasyonu", f"%{ocak_enflasyon:.2f}", "Ocak 2025", "#10b981", "card-emerald")
                 st.markdown("<br>", unsafe_allow_html=True)
 
                 # --- GRAFİK STİL FONKSİYONU ---
@@ -1065,6 +1066,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
