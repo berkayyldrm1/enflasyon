@@ -839,32 +839,26 @@ def dashboard_modu():
                 else:
                     enf_aralik = 0.0
 
-                # --- 2. OCAK BAZLI HESAPLAMA ---
+                # --- OCAK BAZLI HESAPLAMA (DÜZELTME) ---
                 ocak_gunleri = [g for g in gunler if "-01-" in g]
-                if ocak_gunleri:
-                    ocak_baz = ocak_gunleri[0]
-                    pay_ocak = (df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz])).sum()
-                    payda_ocak = df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col].sum()
-                    endeks_ocak = (pay_ocak / payda_ocak) * 100
-                    enf_ocak = endeks_ocak - 100
-                else:
-                    enf_ocak = 0.0
+                aralik_gunleri = [g for g in gunler if "-12-" in g] # Aralık günlerini de çekiyoruz
+
+                if ocak_gunleri and aralik_gunleri:
+                    # Ocak'ın kendi içindeki ilk günü yerine, Aralık'ın son gününü 'baz' alıyoruz
+                    ocak_baz_tarihi = aralik_gunleri[-1] 
                     
-                # ... (Mevcut dt_son satırı ile devam et)
-                dt_son = datetime.strptime(son, '%Y-%m-%d')
-            
-                # --- BURAYA EKLE: OCAK BAZLI HESAPLAMA ---
-                ocak_gunleri = [g for g in gunler if "-01-" in g]
-                if ocak_gunleri:
-                    ocak_baz = ocak_gunleri[0]
-                    # Ocak ayı başından (100 puan) itibaren kümülatif artış
-                    pay = (df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz])).sum()
-                    payda = df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col].sum()
-                    endeks_ocak = (pay / payda) * 100
-                    enf_ocak = endeks_ocak - 100
+                    pay_ocak = (df_analiz.dropna(subset=[son, ocak_baz_tarihi])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz_tarihi])).sum()
+                    payda_ocak = df_analiz.dropna(subset=[son, ocak_baz_tarihi])[agirlik_col].sum()
+                    
+                    if payda_ocak != 0:
+                        endeks_ocak = (pay_ocak / payda_ocak) * 100
+                        enf_ocak = endeks_ocak - 100
+                    else:
+                        enf_ocak = 0.0
                 else:
                     enf_ocak = 0.0
-                # --- EKLEME BİTTİ ---
+            
+            
                 
                 dt_son = datetime.strptime(son, '%Y-%m-%d'); dt_baz = datetime.strptime(baz, '%Y-%m-%d')
                
@@ -910,12 +904,13 @@ def dashboard_modu():
                         </div>
                     """, unsafe_allow_html=True)
 
-                c1, c2, c3, c4, c5 = st.columns(5)
-                with c1: kpi_card("Aralık Ayı Enflasyonu", f"%{enf_aralik:.2f}", "Aralık Sonu (Sabit)", "#ef4444", "card-blue")
+                c1, c2, c3, c4 = st.columns(4)
+                with c1: kpi_card("Ocak Bazlı Enflasyon", f"%{enf_ocak:.2f}", "Yılbaşından Bugüne", "#22c55e", "card-emerald")
                 with c2: kpi_card("Gıda Enflasyonu", f"%{enf_gida:.2f}", "Mutfak Sepeti", "#ef4444", "card-emerald")
-                with c3: kpi_card("Simülasyon Beklentisi", f"%{enf_aralik:.2f}", f"Aralık Ayı Tamamlandı", "#8b5cf6", "card-purple")
+                with c3: kpi_card("Aralık Ayı Enflasyonu", f"%{enf_aralik:.2f}", "Aralık Sonu (Sabit)", "#ef4444", "card-blue")
+                # -- with c3: kpi_card("Simülasyon Beklentisi", f"%{enf_aralik:.2f}", f"Aralık Ayı Tamamlandı", "#8b5cf6", "card-purple")
                 with c4: kpi_card("Resmi TÜİK Verisi", f"%{resmi_aylik_enf:.2f}", f"{resmi_tarih_str} Dönemi", "#f59e0b", "card-orange")
-                with c5: kpi_card("Ocak Bazlı Enflasyon", f"%{enf_ocak:.2f}", "Yılbaşından Bugüne", "#22c55e", "card-emerald")
+                
                 st.markdown("<br>", unsafe_allow_html=True)
 
                 # --- GRAFİK STİL FONKSİYONU ---
@@ -1113,6 +1108,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
