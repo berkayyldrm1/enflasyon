@@ -837,17 +837,26 @@ def dashboard_modu():
                 else:
                     enf_aralik = 0.0
 
-                # --- 2. OCAK BAZLI HESAPLAMA ---
+                # --- OCAK BAZLI HESAPLAMA (DÜZELTME) ---
                 ocak_gunleri = [g for g in gunler if "-01-" in g]
-                if ocak_gunleri:
-                    ocak_baz = ocak_gunleri[0]
-                    pay_ocak = (df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz])).sum()
-                    payda_ocak = df_analiz.dropna(subset=[son, ocak_baz])[agirlik_col].sum()
-                    endeks_ocak = (pay_ocak / payda_ocak) * 100
-                    enf_ocak = endeks_ocak - 100
+                aralik_gunleri = [g for g in gunler if "-12-" in g]
+
+                if ocak_gunleri and aralik_gunleri:
+                    # Ocak'ın kendi içindeki ilk günü yerine, Aralık'ın son gününü 'baz' alıyoruz
+                    ocak_baz_tarihi = aralik_gunleri[-1] 
+                    
+                    pay_ocak = (df_analiz.dropna(subset=[son, ocak_baz_tarihi])[agirlik_col] * (df_analiz[son] / df_analiz[ocak_baz_tarihi])).sum()
+                    payda_ocak = df_analiz.dropna(subset=[son, ocak_baz_tarihi])[agirlik_col].sum()
+                    
+                    if payda_ocak != 0:
+                        endeks_ocak = (pay_ocak / payda_ocak) * 100
+                        enf_ocak = endeks_ocak - 100
+                    else:
+                        enf_ocak = 0.0
                 else:
                     enf_ocak = 0.0
-
+         
+                
                 # ... (Mevcut dt_son satırı ile devam et)
                 dt_son = datetime.strptime(son, '%Y-%m-%d')
             
@@ -1111,6 +1120,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
